@@ -329,6 +329,10 @@ __attribute((overloadable)) static inline UIViewController *RTSafeWrapViewContro
     return self.contentViewController.preferredInterfaceOrientationForPresentation;
 }
 
+- (CGSize)preferredContentSize {
+    return self.contentViewController.preferredContentSize;
+}
+
 - (UIViewController *)viewControllerForUnwindSegueAction:(SEL)action
                                       fromViewController:(UIViewController *)fromViewController
                                               withSender:(id)sender
@@ -598,6 +602,10 @@ __attribute((overloadable)) static inline UIViewController *RTSafeWrapViewContro
 }
 #endif
 
+- (CGSize)preferredContentSize {
+    return self.topViewController.preferredContentSize;
+}
+
 @end
 
 
@@ -817,6 +825,10 @@ __attribute((overloadable)) static inline UIViewController *RTSafeWrapViewContro
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
 {
     return self.topViewController.preferredInterfaceOrientationForPresentation;
+}
+
+- (CGSize)preferredContentSize {
+    return self.topViewController.preferredContentSize;
 }
 
 - (BOOL)respondsToSelector:(SEL)aSelector
