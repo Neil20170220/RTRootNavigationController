@@ -333,6 +333,8 @@ __attribute((overloadable)) static inline UIViewController *RTSafeWrapViewContro
     return self.contentViewController.preferredContentSize;
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (UIViewController *)viewControllerForUnwindSegueAction:(SEL)action
                                       fromViewController:(UIViewController *)fromViewController
                                               withSender:(id)sender
@@ -341,6 +343,7 @@ __attribute((overloadable)) static inline UIViewController *RTSafeWrapViewContro
                                                        fromViewController:fromViewController
                                                                withSender:sender];
 }
+#pragma clang diagnostic pop
 
 - (BOOL)hidesBottomBarWhenPushed
 {
@@ -430,6 +433,17 @@ __attribute((overloadable)) static inline UIViewController *RTSafeWrapViewContro
     [super viewDidLayoutSubviews];
     
     UIViewController *viewController = self.topViewController;
+    if (!viewController.rt_hasSetInteractivePop) {
+        BOOL hasSetLeftItem = viewController.navigationItem.leftBarButtonItem != nil;
+        if (self.navigationBarHidden) {
+            viewController.rt_disableInteractivePop = YES;
+        } else if (hasSetLeftItem) {
+            viewController.rt_disableInteractivePop = YES;
+        } else {
+            viewController.rt_disableInteractivePop = NO;
+        }
+        
+    }
     if ([self.parentViewController isKindOfClass:[RTContainerController class]] &&
         [self.parentViewController.parentViewController isKindOfClass:[RTRootNavigationController class]]) {
         [self.rt_navigationController _installsLeftBarButtonItemIfNeededForViewController:viewController];
@@ -463,6 +477,8 @@ __attribute((overloadable)) static inline UIViewController *RTSafeWrapViewContro
     return [super viewControllers];
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (UIViewController *)viewControllerForUnwindSegueAction:(SEL)action
                                       fromViewController:(UIViewController *)fromViewController
                                               withSender:(id)sender
@@ -476,6 +492,7 @@ __attribute((overloadable)) static inline UIViewController *RTSafeWrapViewContro
                                   fromViewController:fromViewController
                                           withSender:sender];
 }
+#pragma clang diagnostic pop
 
 - (NSArray<UIViewController *> *)allowedChildViewControllersForUnwindingFromSource:(UIStoryboardUnwindSegueSource *)source
 {
@@ -488,6 +505,7 @@ __attribute((overloadable)) static inline UIViewController *RTSafeWrapViewContro
 - (void)pushViewController:(UIViewController *)viewController
                   animated:(BOOL)animated
 {
+    viewController.rt_disableInteractivePop = NO;
     if (self.navigationController) {
         [self.navigationController pushViewController:viewController
                                              animated:animated];
@@ -549,6 +567,9 @@ __attribute((overloadable)) static inline UIViewController *RTSafeWrapViewContro
 - (void)setNavigationBarHidden:(BOOL)hidden animated:(BOOL)animated
 {
     [super setNavigationBarHidden:hidden animated:animated];
+    if (!self.visibleViewController.rt_hasSetInteractivePop) {
+        self.visibleViewController.rt_disableInteractivePop = hidden;
+    }
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle
@@ -691,6 +712,8 @@ __attribute((overloadable)) static inline UIViewController *RTSafeWrapViewContro
                          animated:NO];
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
 - (UIViewController *)viewControllerForUnwindSegueAction:(SEL)action
                                       fromViewController:(UIViewController *)fromViewController
                                               withSender:(id)sender
@@ -712,6 +735,7 @@ __attribute((overloadable)) static inline UIViewController *RTSafeWrapViewContro
     }
     return controller;
 }
+#pragma clang diagnostic pop
 
 - (void)setNavigationBarHidden:(__unused BOOL)hidden
                       animated:(__unused BOOL)animated
@@ -722,6 +746,7 @@ __attribute((overloadable)) static inline UIViewController *RTSafeWrapViewContro
 - (void)pushViewController:(UIViewController *)viewController
                   animated:(BOOL)animated
 {
+    viewController.rt_disableInteractivePop = NO;
     if (viewController == nil) {
         if (self.animationBlock) {
             self.animationBlock(YES);
@@ -874,6 +899,7 @@ __attribute((overloadable)) static inline UIViewController *RTSafeWrapViewContro
                   animated:(BOOL)animated
                   complete:(void (^)(BOOL))block
 {
+    viewController.rt_disableInteractivePop = NO;
     if (self.animationBlock) {
         self.animationBlock(NO);
     }
